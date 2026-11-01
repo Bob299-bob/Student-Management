@@ -16,7 +16,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 
-// CORS configuration
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularPolicy", policy =>
@@ -36,11 +35,31 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// CORS must run before authorization and controller endpoints.
 app.UseRouting();
-app.UseCors("AngularPolicy");
-app.UseAuthorization();
 
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"REQUEST ORIGIN: {context.Request.Headers.Origin}");
+    await next();
+});
+
+app.UseCors("AngularPolicy");
+
+app.Use(async (context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        Console.WriteLine(
+            $"CORS RESPONSE: {context.Response.Headers.AccessControlAllowOrigin}"
+        );
+
+        return Task.CompletedTask;
+    });
+
+    await next();
+});
+
+app.UseAuthorization();
 app.MapControllers();
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
