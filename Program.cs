@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AngularPolicy", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200","https://studentmanagement12-ofs2.vercel.app/")
+            .WithOrigins("http://localhost:4200","https://studentmanagement12-ofs2.vercel.app")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
